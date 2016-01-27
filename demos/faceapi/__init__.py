@@ -29,7 +29,6 @@ class FaceInfo:
         self.img_path = img_path  # string
         self.class_id = class_id  # int
 
-
 class FaceCenter():
     __metaclass__ = ABCMeta
 

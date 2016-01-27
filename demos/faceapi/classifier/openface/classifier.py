@@ -80,7 +80,7 @@ class ClassifierOf(FaceClassifier):
 
         (X, y) = d
         self._svm = GridSearchCV(SVC(C=1), param_grid, cv=5).fit(X, y)
-        # self._log.info("train svm: {}".format(self._svm))
+        self._log.info("train svm: {}".format(self._svm))
 
     def predict(self, image):
         if self._svm is None:
@@ -125,15 +125,19 @@ class ClassifierOf(FaceClassifier):
     def _trainData(self):
         X = []
         y = []
-
+        list_classes = set()
+        class_counts = {d['class_id']:d['count'] for d in self._face_db.classCount()}
         for info in self._db_dict.values():
-            rep_list = [float(x) for x in info['eigen'].split(',')]
-            X.append(rep_list)
-            y.append(info['class_id'])
+            #self._log.info("value to train number: {} count {}".format(info['class_id'], class_counts[info['class_id']]))
+            if class_counts[info['class_id']] > 5:
+                rep_list = [float(x) for x in info['eigen'].split(',')]
+                list_classes.add(info['class_id'])
+                X.append(rep_list)
+                y.append(info['class_id'])
 
         db_names = self._face_db.distinct_search(
                                     ['name', 'class_id'], 'class_id')
-        if len(db_names) == 1:
+        if len(list_classes) == 1:
             self._log.info("just one class, do not train svm.")
             return None
 
@@ -144,5 +148,5 @@ class ClassifierOf(FaceClassifier):
         X = np.vstack(X)
         y = np.array(y)
 
-        # self._log.info("classes({}): {}".format(len(y), y))
+        self._log.info("classes({}): {}".format(len(y), y))
         return (X, y)

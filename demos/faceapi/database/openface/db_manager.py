@@ -45,6 +45,7 @@ _SQL_ADD_FACE = (
                 "VALUES(?, ?, ?, ?, ?)")
 _SQL_GET_FACE_WITH_FIELD = "SELECT * FROM face_table WHERE {}={} LIMIT {}"
 _SQL_DISTINCT_SEARCH = "select distinct {} from face_table order by {}"
+_SQL_CLASS_COUNTS = "SELECT class_id, count(class_id) as count FROM face_table GROUP BY class_id"
 
 
 """
@@ -100,6 +101,22 @@ class DbManagerOpenface(DbManager):
             with sqlite3.connect(self._db_file) as db:
                 cur = db.cursor()
                 cur.execute(_SQL_GET_ALL_FACE)
+                columns = [column[0] for column in cur.description]
+                for row in cur.fetchall():
+                    rows.append(dict(zip(columns, row)))
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+
+        return rows
+
+    def classCount(self):
+        rows = []
+        db = None
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                cur = db.cursor()
+                cur.execute(_SQL_CLASS_COUNTS)
                 columns = [column[0] for column in cur.description]
                 for row in cur.fetchall():
                     rows.append(dict(zip(columns, row)))

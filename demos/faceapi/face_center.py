@@ -60,6 +60,7 @@ class FaceCenterOf(FaceCenter):
 
         trained_list = []
         for face in bbs:
+            self._log.debug("Face found in training")
             phash, rep = self._face_eigener.eigenValue(face.img)
             identity = self._toIdentity(name)
             if identity is None:
@@ -71,6 +72,7 @@ class FaceCenterOf(FaceCenter):
             face_img = os.path.join(
                     self._trained_face_dir, "{}_{}.jpg".format(name, phash))
             Image.fromarray(face.img).save(face_img)
+            #content = [str(x) for x in face.img.flatten()]
             record = faceapi.FaceInfo(
                             phash, name, rep, face_img, identity)
             self._face_db.addList([record])
@@ -89,7 +91,10 @@ class FaceCenterOf(FaceCenter):
                 continue
             hit_cnt += 1
             if callback is not None:
-                callback(hit.class_id, face.area, face.landmarks)
+                callback(
+                    hit.class_id,
+                    face.area,
+                    face.landmarks)
 
         return hit_cnt
 
@@ -144,6 +149,7 @@ class FaceCenterOf(FaceCenter):
                                         "{}_{}.jpg".format(name, phash))
 
                     Image.fromarray(face.img).save(face_img)
+                    #content = [str(x) for x in alignedFace.flatten()]
                     record = faceapi.FaceInfo(
                                 phash, name, rep, face_img, class_id)
                     self._face_db.addList([record])

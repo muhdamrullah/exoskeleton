@@ -81,8 +81,9 @@ class FaceDetectorOf(FaceDetector):
             self._logger.debug("PIL image: {}".format(str(img)))
         elif isinstance(image, Image.Image):
             img = image
+
         else:
-            raise exceptions.LibError("Unknow image type")
+            raise exceptions.LibError("Unknown image type")
 
         img = _resize(img)
         buf = np.fliplr(np.asarray(img))
@@ -95,9 +96,11 @@ class FaceDetectorOf(FaceDetector):
         rgbFrame[:, :, 1] = buf[:, :, 1]
         rgbFrame[:, :, 2] = buf[:, :, 2]
 
-        face_box = openfaceutils.align.getLargestFaceBoundingBox(rgbFrame)
+        face_boxes = openfaceutils.align.getAllFaceBoundingBoxes(rgbFrame)
+        #face_box = openfaceutils.align.getLargestFaceBoundingBox(rgbFrame)
         # face_list = align.getAllFaceBoundingBoxes(rgbFrame)
-        face_list = [face_box] if face_box is not None else []
+        #face_list = [face_box] if face_box is not None else []
+        face_list = face_boxes
 
         detected_list = []
         for face_box in face_list:

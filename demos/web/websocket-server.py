@@ -149,7 +149,8 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             face_info_client = {
                 "hash": info.hash,
                 "name": info.name,
-                "identity": info.class_id
+                "identity": info.class_id,
+                "path": 'db_face/' + os.path.basename(info.img_path)
             }
             face_list.append(face_info_client)
 
@@ -222,7 +223,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             self.people.append(jsPerson.encode('ascii', 'ignore'))
 
         if not training:
-            self.trainSVM()
+            pass#self.trainSVM()
 
     def getData(self):
         X = []
@@ -318,6 +319,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
         img = Image.open(imgF)
 
         name = self.people[identity]
+        print "TrainingFRAME for: {}".format(name)
         trained_list = _face_center.train(img, name)
 
         # bbs = _face_detector.detect(img)
@@ -345,7 +347,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
                     "type": "NEW_IMAGE",
                     "name": name,
                     "hash": phash,
-                    # "content": content,
+                    "path": 'db_face/' + os.path.basename(info.img_path),
                     "identity": identity}
             self.sendMessage(json.dumps(msg))
 
@@ -385,7 +387,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
                     name = "Unknown"
             else:
                 print "now people: {}".format(self.people)
-                name = self.people[identity]
+                name = self.people[class_id]
 
             cv2.putText(
                         annotatedFrame,

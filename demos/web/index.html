@@ -110,7 +110,6 @@ limitations under the License.
                     <ul class="dropdown-menu"
                         aria-labelledby="defaultPersonDropdown"
                         id="defaultPersonDropdownMenu">
-                        <li><a href="javascript:defaultPerson=-1">Unknown</a></li>
                         {{#each people}}
                         <li>
                             <a href="javascript:defaultPerson={{@index}}">
@@ -133,7 +132,6 @@ limitations under the License.
                 <script id="peopleTableTmpl" type="text/x-handlebars-template">
                     <thead><tr>
                         <th></th>
-                        <th>Unknown</th>
                         {{#each people}}
                         <th>{{this}}</th>
                         {{/each}}
@@ -149,16 +147,6 @@ limitations under the License.
                                 </a>
                                 </font>
                                 <img src="{{this.image}}"/>
-                            </td>
-                            <td>
-                                <input type='radio'
-                                       name='ppl_radio_{{this.hash}}'
-                                       value="-1"
-                                       {{#ifEq identity -1}}
-                                       checked
-                                       {{/ifEq}}
-                                       onClick="updateIdentity('{{this.hash}}', -1)"
-                                       >
                             </td>
                             {{#each ../people}}
                             <td>

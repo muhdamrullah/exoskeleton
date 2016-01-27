@@ -93,7 +93,7 @@ function getPeopleInfoHtml() {
         info[id] += 1;
     }
 
-    var h = "<li><b>Unknown:</b> "+info['-1']+"</li>";
+    var h = "";
     var len = people.length;
     for (var i = 0; i < len; i++) {
         h += "<li><b>"+people[i]+":</b> "+info[i]+"</li>";
@@ -204,7 +204,7 @@ function createSocket(address, name) {
                 images.push({
                 hash: db_info.hash,
                 identity: db_info.identity,
-                image: getDataURLFromRGB(db_info.content),
+                image: db_info.path,
                 representation: db_info.representation
                 });
                 people[db_info.identity] = db_info.name;
@@ -218,7 +218,7 @@ function createSocket(address, name) {
             images.push({
                 hash: j.hash,
                 identity: j.identity,
-                image: getDataURLFromRGB(j.content),
+                image: j.path,
                 representation: j.representation
             });
             redrawPeople();
@@ -229,12 +229,13 @@ function createSocket(address, name) {
             var len = j.identities.length
             if (len > 0) {
                 for (var i = 0; i < len; i++) {
-                    var identity = "Unknown";
+                    var identity = "";
                     var idIdx = j.identities[i];
                     if (idIdx != -1) {
                         identity = people[idIdx];
+                        h += "<li>" + identity + "</li>";
                     }
-                    h += "<li>" + identity + "</li>";
+                    
                 }
             } else {
                 h += "<li>Nobody detected.</li>";
