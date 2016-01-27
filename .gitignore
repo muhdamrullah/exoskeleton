@@ -21,6 +21,8 @@ demos/web/bower_components
 demos/web/unknown*.npy
 demos/web/facedb.db3
 demos/web/db_face
+demos/web/db_face.bak
+demos/web/facedb.db3.bak
 
 models/openface/*.t7
 models/openface/*.pkl

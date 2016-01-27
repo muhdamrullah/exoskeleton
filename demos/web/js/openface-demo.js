@@ -102,7 +102,7 @@ function getPeopleInfoHtml() {
 }
 
 function redrawPeople() {
-    defaultPerson = people.length - 1;
+    //defaultPerson = people.length - 1;
     var context = {people: people, images: images};
     $("#peopleTable").html(peopleTableTmpl(context));
 
@@ -177,7 +177,7 @@ function createSocket(address, name) {
         console.time("startPage")
     }
     socket.onmessage = function(e) {
-        console.log(e);
+        console.info(e);
         j = JSON.parse(e.data)
         if (j.type == "NULL") {
             receivedTimes.push(new Date());
@@ -213,6 +213,7 @@ function createSocket(address, name) {
             console.log("loop times: %d, and images: %d", loopCnt, images.length)
             console.time("redrawPeople")
             redrawPeople();
+            defaultPerson = people.length - 1;
             console.timeEnd("redrawPeople")
         } else if (j.type == "NEW_IMAGE") {
             images.push({

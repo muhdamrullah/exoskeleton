@@ -169,6 +169,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
         print("Received {} message of length {}.".format(
             msg['type'], len(raw)))
         if msg['type'] == "ALL_STATE":
+            # TODO
             self.loadState(msg['images'], msg['training'], msg['people'])
         elif msg['type'] == "NULL":
             self.sendMessage('{"type": "NULL"}')
@@ -180,6 +181,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             self.sendMessage('{"type": "PROCESSED"}')
         elif msg['type'] == "TRAINING":
             self.training = msg['val']
+            # TODO
             # if not self.training:
             #     self.trainSVM()
             #     _face_classifier.updateDB()
@@ -187,6 +189,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             self.people.append(msg['val'].encode('ascii', 'ignore'))
             print(self.people)
         elif msg['type'] == "UPDATE_IDENTITY":
+            # TODO
             h = msg['hash'].encode('ascii', 'ignore')
             if h in self.images:
                 self.images[h].identity = msg['idx']
@@ -195,6 +198,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             else:
                 print("Image not found.")
         elif msg['type'] == "REMOVE_IMAGE":
+            # TODO
             h = msg['hash'].encode('ascii', 'ignore')
             if h in self.images:
                 del self.images[h]
@@ -203,6 +207,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             else:
                 print("Image not found.")
         elif msg['type'] == 'REQ_TSNE':
+            # TODO
             self.sendTSNE(msg['people'])
         else:
             print("Warning: Unknown message type: {}".format(msg['type']))
@@ -372,7 +377,13 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             tr = (area.right(), area.top())
             cv2.rectangle(annotatedFrame, bl, tr, color=(153, 255, 204),
                           thickness=3)
-
+            for p in landmarks:
+                cv2.circle(
+                            annotatedFrame,
+                            center=p,
+                            radius=3,
+                            color=(204, 102, 255),
+                            thickness=-1)
             for p in openface.AlignDlib.OUTER_EYES_AND_NOSE:
                 cv2.circle(
                             annotatedFrame,
