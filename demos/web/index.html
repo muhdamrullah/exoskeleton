@@ -51,16 +51,16 @@ limitations under the License.
                 <h2>People in Video</h2>
                 <div id="peopleInVideo"></div>
 
-                <h2>Servers: <span id="serverStatus"></span></h2>
-                <!-- <div id="serverStatus"></div> -->
+                <!--<h2>Servers: <span id="serverStatus"></span></h2>
+                <div id="serverStatus"></div>
                 <div class="btn-group" role="group" id="serverBtn">
                     <button type="button" class="btn btn-default active">Local</button>
-                    <!--
+                
                     <button type="button" class="btn btn-default">CMU</button>
                     <button type="button" class="btn btn-default">AWS East</button>
                     <button type="button" class="btn btn-default">AWS West</button>
-                    -->
-                </div>
+                    
+                </div>-->
 
                 <!--
                 <h3>Null Server RTTs</h3>
@@ -91,13 +91,13 @@ limitations under the License.
                     </span>
                 </div>
                 <br/>
-                <div>
+                <!--<div>
                     <button class="btn btn-default" type="button"
                             id="viewTSNEBtn">
                         Visualize with TSNE
                     </button>
                 </div>
-                <br/>
+                <br/>-->
                 <div class="dropdown" id="defaultPersonDropdown"></div>
                 <script id="defaultPersonTmpl" type="text/x-handlebars-template">
                     <button class="btn btn-default dropdown-toggle"
@@ -112,7 +112,7 @@ limitations under the License.
                         id="defaultPersonDropdownMenu">
                         {{#each people}}
                         <li>
-                            <a href="javascript:defaultPerson={{@index}}">
+                            <a href="javascript:defaultPerson={{@index}};redrawPeople();">
                                 {{this}}
                             </a>
                         </li>

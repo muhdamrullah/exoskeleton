@@ -125,10 +125,9 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             identity = info.class_id
             rep_list = info.eigen
             self.images[h] = Face(np.array(rep_list), identity)
-            print "db image: {}".format(
-                        Face(np.array(np.array(rep_list)), identity))
+            #print "db image: {}".format(Face(np.array(np.array(rep_list)), identity))
 
-        print "images from db({}) loaded".format(len(self.images))
+        #print "images from db({}) loaded".format(len(self.images))
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
@@ -322,7 +321,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
         imgF.write(imgdata)
         imgF.seek(0)
         img = Image.open(imgF)
-
+        print "TrainingFRAME for: {}".format(identity)
         name = self.people[identity]
         print "TrainingFRAME for: {}".format(name)
         trained_list = _face_center.train(img, name)
@@ -355,6 +354,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
                     "path": 'db_face/' + os.path.basename(info.img_path),
                     "identity": identity}
             self.sendMessage(json.dumps(msg))
+            print "Sent NEW_IMAGE for: {} {}".format(name, identity)
 
     def processFrame(self, dataURL, identity):
         head = "data:image/jpeg;base64,"

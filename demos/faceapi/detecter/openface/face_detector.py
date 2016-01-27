@@ -97,9 +97,9 @@ class FaceDetectorOf(FaceDetector):
         rgbFrame[:, :, 2] = buf[:, :, 2]
 
         face_boxes = openfaceutils.align.getAllFaceBoundingBoxes(rgbFrame)
+        face_list = face_boxes
         #face_box = openfaceutils.align.getLargestFaceBoundingBox(rgbFrame)
         #face_list = [face_box] if face_box is not None else []
-        face_list = face_boxes
 
         detected_list = []
         for face_box in face_list:

@@ -73,6 +73,7 @@ function sendFrameLoop() {
             'dataURL': dataURL,
             'identity': defaultPerson
         };
+        console.log(msg);
         socket.send(JSON.stringify(msg));
         tok--;
     }
@@ -96,7 +97,7 @@ function getPeopleInfoHtml() {
     var h = "";
     var len = people.length;
     for (var i = 0; i < len; i++) {
-        h += "<li><b>"+people[i]+":</b> "+info[i]+"</li>";
+        h += "<li><b>"+people[i]+":</b> "+info[i]+(defaultPerson==i?" - Currently Selected":"")+"</li>";
     }
     return h;
 }
@@ -212,8 +213,8 @@ function createSocket(address, name) {
             console.timeEnd("addtimer")
             console.log("loop times: %d, and images: %d", loopCnt, images.length)
             console.time("redrawPeople")
-            redrawPeople();
             defaultPerson = people.length - 1;
+            redrawPeople();
             console.timeEnd("redrawPeople")
         } else if (j.type == "NEW_IMAGE") {
             images.push({
@@ -279,10 +280,10 @@ function umSuccess(stream) {
 }
 
 function addPersonCallback(el) {
-    defaultPerson = people.length;
     var newPerson = $("#addPersonTxt").val();
     if (newPerson == "") return;
     people.push(newPerson);
+    defaultPerson = people.length - 1;
     $("#addPersonTxt").val("");
 
     if (socket != null) {

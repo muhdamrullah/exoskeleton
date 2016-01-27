@@ -67,7 +67,7 @@ class FaceCenterOf(FaceCenter):
                 people_list = self._face_db.distinct_search(
                                             ['name', 'class_id'], 'class_id')
 
-                identity = len(people_list)
+                identity = len(people_list) - 1
 
             face_img = os.path.join(
                     self._trained_face_dir, "{}_{}.jpg".format(name, phash))

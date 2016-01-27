@@ -93,7 +93,7 @@ class ClassifierOf(FaceClassifier):
         if isinstance(image, basestring):
             pil_img = Image.open(image)
             np_img = np.asarray(pil_img)
-            self._log.debug("PIL image: {}".format(str(pil_img)))
+            #self._log.debug("PIL image: {}".format(str(pil_img)))
         elif isinstance(image, Image.Image):
             pil_img = image
             np_img = np.asarray(image)
@@ -111,7 +111,7 @@ class ClassifierOf(FaceClassifier):
             rep = openfaceutils.neural_net.forward(np_img)
             class_id = self._svm.predict(rep)[0]
             db_list = self._face_db.search('class_id', class_id, 1)
-            self._log.debug("result({}): {}".format(len(db_list), db_list))
+            #self._log.debug("result({}): {}".format(len(db_list), db_list))
             hit = db_list[0]
 
         resultRecord = faceapi.FaceInfo(
@@ -138,7 +138,7 @@ class ClassifierOf(FaceClassifier):
         db_names = self._face_db.distinct_search(
                                     ['name', 'class_id'], 'class_id')
         if len(list_classes) == 1:
-            self._log.info("just one class, do not train svm.")
+            #self._log.info("just one class, do not train svm.")
             return None
 
         cnt = len(set(y + [-1])) - 1
@@ -148,5 +148,5 @@ class ClassifierOf(FaceClassifier):
         X = np.vstack(X)
         y = np.array(y)
 
-        self._log.info("classes({}): {}".format(len(y), y))
+        #self._log.info("classes({}): {}".format(len(y), y))
         return (X, y)
