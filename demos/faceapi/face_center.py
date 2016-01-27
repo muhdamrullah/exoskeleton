@@ -87,7 +87,7 @@ class FaceCenterOf(FaceCenter):
         hit_cnt = 0
         for face in bbs:
             hit = self._face_classifier.predict(face.img)
-            if hit is None:
+            if hit is None:# or hit.class_id == -1:
                 continue
             hit_cnt += 1
             if callback is not None:

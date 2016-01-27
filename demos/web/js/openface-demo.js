@@ -73,7 +73,7 @@ function sendFrameLoop() {
             'dataURL': dataURL,
             'identity': defaultPerson
         };
-        console.log(msg);
+        //console.log(msg);
         socket.send(JSON.stringify(msg));
         tok--;
     }
@@ -178,7 +178,7 @@ function createSocket(address, name) {
         console.time("startPage")
     }
     socket.onmessage = function(e) {
-        console.info(e);
+        //console.info(e);
         j = JSON.parse(e.data)
         if (j.type == "NULL") {
             receivedTimes.push(new Date());
@@ -196,7 +196,7 @@ function createSocket(address, name) {
             tok++;
         } else if (j.type == "DB_LIST") {
             // alert("DB_LIST: " + j.list.length);
-            console.log(j)
+            //console.log(j)
             var loopCnt = 0
             console.time("addtimer")
             for (var i = 0; i < j.list.length; i++) {
@@ -236,6 +236,8 @@ function createSocket(address, name) {
                     if (idIdx != -1) {
                         identity = people[idIdx];
                         h += "<li>" + identity + "</li>";
+                    } else if (idIdx == -1) {
+                        h += "<li>Unknown Person</li>";
                     }
                     
                 }

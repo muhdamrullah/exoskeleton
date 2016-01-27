@@ -33,6 +33,7 @@ from faceapi.detecter import FaceDetected
 
 _DEFAULT_IMG_W = 400
 _DEFAULT_IMG_H = 300
+_DETECT_ALL_FACES = True
 
 _IMG_RESIZE_BASE = 512.0
 
@@ -96,10 +97,12 @@ class FaceDetectorOf(FaceDetector):
         rgbFrame[:, :, 1] = buf[:, :, 1]
         rgbFrame[:, :, 2] = buf[:, :, 2]
 
-        face_boxes = openfaceutils.align.getAllFaceBoundingBoxes(rgbFrame)
-        face_list = face_boxes
-        #face_box = openfaceutils.align.getLargestFaceBoundingBox(rgbFrame)
-        #face_list = [face_box] if face_box is not None else []
+        if _DETECT_ALL_FACES:
+            face_boxes = openfaceutils.align.getAllFaceBoundingBoxes(rgbFrame)
+            face_list = face_boxes
+        else:
+            face_box = openfaceutils.align.getLargestFaceBoundingBox(rgbFrame)
+            face_list = [face_box] if face_box is not None else []
 
         detected_list = []
         for face_box in face_list:

@@ -76,6 +76,8 @@ net = openface.TorchNeuralNet(args.networkModel, imgDim=args.imgDim,
 
 sys.path.append(os.path.join(fileDir, ".."))
 
+_DRAW_LANDMARKS=False
+
 import faceapi
 _face_center = faceapi.share_center(
                         os.path.join(fileDir, 'facedb.db3'),
@@ -377,27 +379,36 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             tr = (area.right(), area.top())
             cv2.rectangle(annotatedFrame, bl, tr, color=(153, 255, 204),
                           thickness=3)
-            for p in landmarks:
-                cv2.circle(
-                            annotatedFrame,
-                            center=p,
-                            radius=3,
-                            color=(204, 102, 255),
-                            thickness=-1)
-            for p in openface.AlignDlib.OUTER_EYES_AND_NOSE:
-                cv2.circle(
-                            annotatedFrame,
-                            center=landmarks[p],
-                            radius=3,
-                            color=(102, 204, 255),
-                            thickness=-1)
-            if identity == -1:
-                if len(self.people) == 1:
-                    name = self.people[0]
-                else:
-                    name = "Unknown"
+            if _DRAW_LANDMARKS:
+                for p in landmarks:
+                    cv2.circle(
+                                annotatedFrame,
+                                center=p,
+                                radius=3,
+                                color=(204, 102, 255),
+                                thickness=-1)
+                for p in openface.AlignDlib.OUTER_EYES_AND_NOSE:
+                    cv2.circle(
+                                annotatedFrame,
+                                center=landmarks[p],
+                                radius=3,
+                                color=(102, 204, 255),
+                                thickness=-1)
+                for p in openface.AlignDlib.INNER_EYES_AND_BOTTOM_LIP:
+                    cv2.circle(
+                                annotatedFrame,
+                                center=landmarks[p],
+                                radius=3,
+                                color=(102, 204, 255),
+                                thickness=-1)
+            if class_id == -1:
+                name = "Unknown"
+                #if len(self.people) == 1:
+                #    name = self.people[0]
+                #else:
+                    #name = "Unknown"
             else:
-                print "now people: {}".format(self.people)
+                #print "now people: {}".format(self.people)
                 name = self.people[class_id]
 
             cv2.putText(

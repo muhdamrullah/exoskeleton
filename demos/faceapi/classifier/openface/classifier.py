@@ -36,6 +36,8 @@ from faceapi.classifier import FaceClassifier
 
 _DEFAULT_IMG_W = 400
 _DEFAULT_IMG_H = 300
+_USE_PREDICTIVE = True
+_PROB_THRESH = .95
 
 """
 .d8888b.  888
@@ -79,7 +81,7 @@ class ClassifierOf(FaceClassifier):
             return
 
         (X, y) = d
-        self._svm = GridSearchCV(SVC(C=1), param_grid, cv=5).fit(X, y)
+        self._svm = GridSearchCV(SVC(C=1, probability=_USE_PREDICTIVE), param_grid, cv=5).fit(X, y)
         self._log.info("train svm: {}".format(self._svm))
 
     def predict(self, image):
@@ -109,10 +111,23 @@ class ClassifierOf(FaceClassifier):
             hit = self._db_dict[phash]
         else:
             rep = openfaceutils.neural_net.forward(np_img)
-            class_id = self._svm.predict(rep)[0]
+            pred = self._svm.predict(rep)
+            #self._log.info("pred {}".format(pred))
+            #self._log.info("df {}".format(self._svm.decision_function(rep)))
+            class_id = pred[0]
+            if _USE_PREDICTIVE:
+                #self._log.info("prob {}".format(self._svm.predict_proba(rep)))
+                probability = max(self._svm.predict_proba(rep)[0])
+                #self._log.info("prob {}".format(probability))
+                if probability <= _PROB_THRESH:
+                    self._log.info("prob too low")
+                    class_id = -1
             db_list = self._face_db.search('class_id', class_id, 1)
             #self._log.debug("result({}): {}".format(len(db_list), db_list))
-            hit = db_list[0]
+            try:
+                hit = db_list[0]
+            except IndexError:
+                hit = {'name': 'Unknown', 'eigen':'', 'img_path':'', 'class_id': class_id}
 
         resultRecord = faceapi.FaceInfo(
                                         phash,
@@ -120,6 +135,7 @@ class ClassifierOf(FaceClassifier):
                                         hit['eigen'],
                                         hit['img_path'],
                                         hit['class_id'])
+
         return resultRecord
 
     def _trainData(self):
