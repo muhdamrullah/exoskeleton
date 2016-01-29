@@ -40,6 +40,10 @@ class DbManager():
         pass
 
     @abstractmethod
+    def classCount(self):
+        pass
+
+    @abstractmethod
     def addList(self, record_list):
         pass
 
@@ -48,8 +52,26 @@ class DbManager():
         pass
 
     @abstractmethod
+    def removePhoto(self, hash):
+        pass
+
+    @abstractmethod
+    def updatePhoto(self, hash, identity):
+        pass
+
+    @abstractmethod
     def distinct_search(self, field_list, order_field):
         pass
+
+    @abstractmethod
+    def add_new_person(self, class_id, name):
+        pass
+
+    @abstractmethod
+    def get_all_classes(self):
+        pass
+
+
 
 """
 8888888888                   888

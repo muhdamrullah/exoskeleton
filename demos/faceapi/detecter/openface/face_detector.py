@@ -76,7 +76,7 @@ class FaceDetectorOf(FaceDetector):
         super(FaceDetectorOf, self).__init__()
         self._logger = log_center.make_logger(__name__, logging.INFO)
 
-    def detect(self, image):
+    def detect(self, image, detect_multiple=_DETECT_ALL_FACES):
         if isinstance(image, basestring):
             img = Image.open(image)
             self._logger.debug("PIL image: {}".format(str(img)))
@@ -97,7 +97,7 @@ class FaceDetectorOf(FaceDetector):
         rgbFrame[:, :, 1] = buf[:, :, 1]
         rgbFrame[:, :, 2] = buf[:, :, 2]
 
-        if _DETECT_ALL_FACES:
+        if detect_multiple:
             face_boxes = openfaceutils.align.getAllFaceBoundingBoxes(rgbFrame)
             face_list = face_boxes
         else:

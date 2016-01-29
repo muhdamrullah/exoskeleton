@@ -182,33 +182,32 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             self.sendMessage('{"type": "PROCESSED"}')
         elif msg['type'] == "TRAINING":
             self.training = msg['val']
-            # TODO
-            # if not self.training:
-            #     self.trainSVM()
-            #     _face_classifier.updateDB()
+            if not self.training:
+                 _face_center.updateDB()
         elif msg['type'] == "ADD_PERSON":
-            self.people.append(msg['val'].encode('ascii', 'ignore'))
+            name = msg['val'].encode('ascii', 'ignore')
+            self.people.append(name)
+            _face_center.add_new_person(msg['class_id'], name)
+            ## add to class_table
             print(self.people)
         elif msg['type'] == "UPDATE_IDENTITY":
-            # TODO
             h = msg['hash'].encode('ascii', 'ignore')
-            if h in self.images:
-                self.images[h].identity = msg['idx']
+            updated = _face_center.updatePhoto(h, msg['idx'])
+            if updated:
                 if not self.training:
-                    self.trainSVM()
+                    _face_center.updateDB()
             else:
                 print("Image not found.")
         elif msg['type'] == "REMOVE_IMAGE":
-            # TODO
             h = msg['hash'].encode('ascii', 'ignore')
-            if h in self.images:
-                del self.images[h]
+            removed = _face_center.removePhoto(h)
+            if removed:
                 if not self.training:
-                    self.trainSVM()
+                    _face_center.updateDB()
             else:
                 print("Image not found.")
         elif msg['type'] == 'REQ_TSNE':
-            # TODO
+            # TODO not sure what this is yet
             self.sendTSNE(msg['people'])
         else:
             print("Warning: Unknown message type: {}".format(msg['type']))
@@ -229,7 +228,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             self.people.append(jsPerson.encode('ascii', 'ignore'))
 
         if not training:
-            pass#self.trainSVM()
+            pass#_face_center.updateDB()
 
     def getData(self):
         X = []

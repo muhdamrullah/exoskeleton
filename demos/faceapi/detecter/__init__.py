@@ -40,7 +40,7 @@ class FaceDetector():
         pass
 
     @abstractmethod
-    def detect(self, image):
+    def detect(self, image, detect_multiple):
         pass
 
 

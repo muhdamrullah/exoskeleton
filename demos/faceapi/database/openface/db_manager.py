@@ -9,6 +9,7 @@ Created on: 2016/1/14
 """
 
 import os
+import re
 import sqlite3
 import logging
 
@@ -37,6 +38,9 @@ _SQL_TABLE_FACE = (
                     "eigen TEXT, "
                     "img_path TEXT, "
                     "class_id INTEGER)")
+_SQL_TABLE_CLASS = (
+                    "class_table(class_id INTEGER PRIMARY KEY, "
+                    "name TEXT)")
 _SQL_GET_ALL_FACE = "SELECT * FROM face_table"
 _SQL_ROWS = "SELECT COUNT(*) FROM face_table"
 _SQL_ADD_FACE = (
@@ -46,6 +50,15 @@ _SQL_ADD_FACE = (
 _SQL_GET_FACE_WITH_FIELD = "SELECT * FROM face_table WHERE {}={} LIMIT {}"
 _SQL_DISTINCT_SEARCH = "select distinct {} from face_table order by {}"
 _SQL_CLASS_COUNTS = "SELECT class_id, count(class_id) as count FROM face_table GROUP BY class_id"
+_SQL_GET_ROW_BY_HASH = "SELECT * FROM face_table WHERE hash=\"{}\""
+_SQL_REMOVE_PHOTO_BY_HASH = "DELETE FROM face_table WHERE hash=\"{}\""
+_SQL_UPDATE_PHOTO_IDX_BY_HASH = "UPDATE face_table SET name=\"{}\", class_id={}, img_path=\"{}\" WHERE hash=\"{}\""
+_SQL_GET_CLASS_ID_BY_IDX = "SELECT * FROM class_table WHERE class_id={}"
+_SQL_GET_CLASSES = "SELECT * FROM class_table"
+_SQL_ADD_PERSON= (
+                "INSERT or REPLACE INTO "
+                "class_table "
+                "VALUES({}, \"{}\")")
 
 
 """
@@ -75,6 +88,7 @@ class DbManagerOpenface(DbManager):
             with sqlite3.connect(self._db_file) as db:
                 cur = db.cursor()
                 cur.execute(_SQL_CMD_CREATE_TAB + _SQL_TABLE_FACE)
+                cur.execute(_SQL_CMD_CREATE_TAB + _SQL_TABLE_CLASS)
                 db.commit()
         except sqlite3.Error as e:
             self._log.error(str(e))
@@ -173,6 +187,97 @@ class DbManagerOpenface(DbManager):
 
         return rows
 
+    def removePhoto(self, hash):
+        self._log.info("removed: {}".format(hash))
+        ## TODO
+        rows = []
+        deleted = False
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                cur = db.cursor()
+                cmd = _SQL_GET_ROW_BY_HASH.format(hash)
+                self._log.info("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+
+                columns = [column[0] for column in cur.description]
+                for row in cur.fetchall():
+                    rows.append(dict(zip(columns, row)))
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                toDelete = rows[0]
+                cur = db.cursor()
+                cmd = _SQL_REMOVE_PHOTO_BY_HASH.format(hash)
+                self._log.info("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+                ##TODO should check to ensure removed.
+                os.remove(toDelete['img_path'])
+                db.commit()
+                deleted = True
+        except IndexError as e:
+            self._log.error(str(e))
+            raise e
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+        #return rows
+        return deleted
+
+    def updatePhoto(self, hash, identity):
+        self._log.info("updated: {} {}".format(identity, hash))
+        ## TODO
+        photoRows = []
+        identityRows = []
+        updatedPhoto = False
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                cur = db.cursor()
+                cmd = _SQL_GET_ROW_BY_HASH.format(hash, identity)
+                self._log.info("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+
+                columns = [column[0] for column in cur.description]
+                for row in cur.fetchall():
+                    photoRows.append(dict(zip(columns, row)))
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                cur = db.cursor()
+                cmd = _SQL_GET_CLASS_ID_BY_IDX.format(identity)
+                self._log.info("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+                columns = [column[0] for column in cur.description]
+                for row in cur.fetchall():
+                    identityRows.append(dict(zip(columns, row)))
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                toUpdate = photoRows[0]
+                name = identityRows[0]
+                img_path = re.sub("(?<=\/)[A-z]+(?=_[A-z0-9]+\.jpg)",name['name'],toUpdate['img_path'])
+                cur = db.cursor()
+                cmd = _SQL_UPDATE_PHOTO_IDX_BY_HASH.format(name['name'], identity, img_path, hash)
+                self._log.info("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+                ##TODO should check to ensure removed.
+                os.rename(toUpdate['img_path'],img_path)
+                db.commit()
+                updatedPhoto = True
+        except IndexError as e:
+            self._log.error(str(e))
+            raise e
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+        #return rows
+        return updatedPhoto
+
     def distinct_search(self, field_list, order_field):
         rows = []
         try:
@@ -180,6 +285,40 @@ class DbManagerOpenface(DbManager):
                 cur = db.cursor()
                 cmd = _SQL_DISTINCT_SEARCH.format(
                                 ','.join(field_list), order_field)
+                self._log.debug("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+
+                columns = [column[0] for column in cur.description]
+                for row in cur.fetchall():
+                    rows.append(dict(zip(columns, row)))
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+
+        return rows
+
+    def add_new_person(self, class_id, name):
+        rows = []
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                cur = db.cursor()
+                self._log.info("Adding person ({}, {})to db".format(name, class_id))
+                cmd = _SQL_ADD_PERSON.format(class_id, name)
+                self._log.debug("sql cmd: {}".format(cmd))
+                cur.execute(cmd)
+                db.commit()
+        except sqlite3.Error as e:
+            self._log.error(str(e))
+            raise e
+
+        return rows
+
+    def get_all_classes(self):
+        rows = []
+        try:
+            with sqlite3.connect(self._db_file) as db:
+                cur = db.cursor()
+                cmd = _SQL_GET_CLASSES
                 self._log.debug("sql cmd: {}".format(cmd))
                 cur.execute(cmd)
 

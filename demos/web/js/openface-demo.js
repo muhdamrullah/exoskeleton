@@ -291,7 +291,8 @@ function addPersonCallback(el) {
     if (socket != null) {
         var msg = {
             'type': 'ADD_PERSON',
-            'val': newPerson
+            'val': newPerson,
+            'class_id': defaultPerson
         };
         socket.send(JSON.stringify(msg));
     }

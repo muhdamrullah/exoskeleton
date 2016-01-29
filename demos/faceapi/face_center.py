@@ -55,8 +55,16 @@ class FaceCenterOf(FaceCenter):
             list.append(face_info)
         return list
 
+    def removePhoto(self, hash):
+        removed = self._face_db.removePhoto(hash)
+        return removed
+
+    def updatePhoto(self, hash, identity):
+        updated = self._face_db.updatePhoto(hash, identity)
+        return updated
+
     def train(self, image, name):
-        bbs = self._face_detector.detect(image)
+        bbs = self._face_detector.detect(image, False)
 
         trained_list = []
         for face in bbs:
@@ -68,6 +76,7 @@ class FaceCenterOf(FaceCenter):
                                             ['name', 'class_id'], 'class_id')
 
                 identity = len(people_list) - 1
+                add_new_person(self, identity, name)
 
             face_img = os.path.join(
                     self._trained_face_dir, "{}_{}.jpg".format(name, phash))
@@ -78,9 +87,11 @@ class FaceCenterOf(FaceCenter):
             self._face_db.addList([record])
             trained_list.append(record)
             # content = [str(x) for x in face.img.flatten()]
-
-        self._face_classifier.updateDB()
+        #self._face_classifier.updateDB()
         return trained_list
+
+    def updateDB(self):
+        self._face_classifier.updateDB()
 
     def predict(self, image, callback=None):
         bbs = self._face_detector.detect(image)
@@ -136,7 +147,7 @@ class FaceCenterOf(FaceCenter):
                 self._log.debug("training img: {}".format(img))
                 # one training image for a person
                 t = time.time()
-                bbs = self._face_detector.detect(img)
+                bbs = self._face_detector.detect(img, False)
                 t = time.time() - t
                 self._log.debug("face detection done({})".format(t))
                 t = time.time()
@@ -163,8 +174,7 @@ class FaceCenterOf(FaceCenter):
         self._face_classifier.updateDB()
 
     def _toIdentity(self, name):
-        db_name_map = self._face_db.distinct_search(
-                                            ['name', 'class_id'], 'class_id')
+        db_name_map = self._face_db.get_all_classes()
 
         if len(db_name_map) == 0:
             return None
@@ -180,3 +190,6 @@ class FaceCenterOf(FaceCenter):
         class_id = (check_ret[0])[1]
 
         return class_id
+
+    def add_new_person(self, class_id, name):
+        self._face_db.add_new_person(class_id, name)

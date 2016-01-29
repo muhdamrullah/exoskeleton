@@ -116,9 +116,10 @@ class ClassifierOf(FaceClassifier):
             #self._log.info("df {}".format(self._svm.decision_function(rep)))
             class_id = pred[0]
             if _USE_PREDICTIVE:
-                #self._log.info("prob {}".format(self._svm.predict_proba(rep)))
+                ##self._log.info("prob {}".format(self._svm.predict_proba(rep)))
+
                 probability = max(self._svm.predict_proba(rep)[0])
-                #self._log.info("prob {}".format(probability))
+                self._log.info("prob {} {}".format(probability, np.argmax(self._svm.predict_proba(rep))))
                 if probability <= _PROB_THRESH:
                     self._log.info("prob too low")
                     class_id = -1
