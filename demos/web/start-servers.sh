@@ -4,7 +4,7 @@ set -e -u
 
 function die { echo $1; exit 42; }
 
-HTTP_PORT=8000
+HTTP_PORT=9000
 WEBSOCKET_PORT=9000
 
 case $# in
@@ -26,7 +26,7 @@ printf "WebSocket Port: %s\n\n" $WEBSOCKET_PORT
 WEBSOCKET_LOG='/tmp/openface.websocket.log'
 printf "WebSocket Server: Logging to '%s'\n\n" $WEBSOCKET_LOG
 
-python2 -m SimpleHTTPServer $HTTP_PORT &> /dev/null &
+#python2 -m SimpleHTTPServer $HTTP_PORT &> /dev/null &
 
 cd ../../ # Root OpenFace directory.
 ./demos/web/websocket-server.py --port $WEBSOCKET_PORT 2>&1 | tee $WEBSOCKET_LOG &

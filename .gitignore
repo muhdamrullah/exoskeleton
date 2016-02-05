@@ -23,6 +23,7 @@ demos/web/facedb.db3
 demos/web/db_face
 demos/web/db_face.bak
 demos/web/facedb.db3.bak
+demos/web/keys
 
 models/openface/*.t7
 models/openface/*.pkl
