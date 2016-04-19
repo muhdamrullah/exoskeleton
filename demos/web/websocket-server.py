@@ -24,12 +24,9 @@ import txaio
 txaio.use_twisted()
 
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
-    WebSocketServerFactory, \
-    listenWS
+    WebSocketServerFactory
 from twisted.python import log
-from twisted.internet import reactor, ssl
-from twisted.web.server import Site
-from twisted.web.static import File
+from twisted.internet import reactor
 
 import argparse
 import cv2
@@ -198,8 +195,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             updated = _face_center.updatePhoto(h, msg['idx'])
             if updated:
                 if not self.training:
-                    pass
-                    #_face_center.updateDB()
+                    _face_center.updateDB()
             else:
                 print("Image not found.")
         elif msg['type'] == "REMOVE_IMAGE":
@@ -207,8 +203,7 @@ class OpenFaceServerProtocol(WebSocketServerProtocol):
             removed = _face_center.removePhoto(h)
             if removed:
                 if not self.training:
-                    pass
-                    #_face_center.updateDB()
+                    _face_center.updateDB()
             else:
                 print("Image not found.")
         elif msg['type'] == 'REQ_TSNE':
@@ -455,19 +450,9 @@ if __name__ == '__main__':
     # dir_path = os.path.join(fileDir, 'train_img')
     # _face_center.trainDir(dir_path)
 
-    contextFactory = ssl.DefaultOpenSSLContextFactory(os.path.join(fileDir,'keys/privatekey.pem'),
-                                                      os.path.join(fileDir,'keys/certificate.pem'))
-
-    factory = WebSocketServerFactory("wss://localhost:{}".format(args.port+1),
+    factory = WebSocketServerFactory("ws://localhost:{}".format(args.port),
                                      debug=False)
-
     factory.protocol = OpenFaceServerProtocol
 
-    listenWS(factory, contextFactory)
-
-    webdir = File(fileDir)
-    webdir.contentTypes['.pem'] = 'application/x-x509-ca-cert'
-    web = Site(webdir)
-
-    reactor.listenSSL(args.port, web, contextFactory)
+    reactor.listenTCP(args.port, factory)
     reactor.run()

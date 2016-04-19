@@ -8,7 +8,7 @@
 Created on: 2016/1/14
 """
 
-import os, pickle
+# import os
 import numpy as np
 import logging
 import imagehash
@@ -56,8 +56,6 @@ class ClassifierOf(FaceClassifier):
         super(ClassifierOf, self).__init__(dir_path)
         self._log = log_center.make_logger(__name__, logging.INFO)
         self._face_db = faceapi.database.make_db_manager(dir_path)
-        self._dir_path = os.path.dirname(dir_path)
-        self._svm = None
         self.updateDB()
 
     def updateDB(self):
@@ -83,11 +81,7 @@ class ClassifierOf(FaceClassifier):
             return
 
         (X, y) = d
-        if not self._svm and os.path.exists(os.path.join(self._dir_path, "classifier.svm")):
-            self._svm = pickle.load( open( os.path.join(self._dir_path, "classifier.svm"), "rb" ) )
-        else:
-            self._svm = GridSearchCV(SVC(C=1, probability=_USE_PREDICTIVE), param_grid, cv=5).fit(X, y)
-            pickle.dump( self._svm, open( os.path.join(self._dir_path, "classifier.svm"), "wb" ) )
+        self._svm = GridSearchCV(SVC(C=1, probability=_USE_PREDICTIVE), param_grid, cv=5).fit(X, y)
         self._log.info("train svm: {}".format(self._svm))
 
     def predict(self, image):
